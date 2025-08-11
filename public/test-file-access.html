@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test File Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold mb-6">Test File Access</h1>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Test Direct File Access</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border rounded p-4">
+                    <h3 class="font-semibold mb-2">Image 1</h3>
+                    <img src="/storage/posts/1752548577_WhatsApp Image 2025-07-14 at 13.18.11_a6ecc6b1.jpg" 
+                         alt="Test Image 1" class="w-full h-32 object-cover rounded"
+                         onload="console.log('Image 1 loaded successfully')"
+                         onerror="console.log('Image 1 failed to load')">
+                    <p class="text-sm text-gray-600 mt-2">WhatsApp Image</p>
+                    <p class="text-xs text-gray-500">URL: /storage/posts/1752548577_WhatsApp Image 2025-07-14 at 13.18.11_a6ecc6b1.jpg</p>
+                </div>
+                <div class="border rounded p-4">
+                    <h3 class="font-semibold mb-2">Image 2</h3>
+                    <img src="/storage/posts/1754130087_go-green-eco-friendly-tips-template-design-b370d5e4c4451b72ef8f38efe1714114_screen.jpg" 
+                         alt="Test Image 2" class="w-full h-32 object-cover rounded"
+                         onload="console.log('Image 2 loaded successfully')"
+                         onerror="console.log('Image 2 failed to load')">
+                    <p class="text-sm text-gray-600 mt-2">Green Tips Template</p>
+                    <p class="text-xs text-gray-500">URL: /storage/posts/1754130087_go-green-eco-friendly-tips-template-design-b370d5e4c4451b72ef8f38efe1714114_screen.jpg</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Test with Cache Busting</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border rounded p-4">
+                    <h3 class="font-semibold mb-2">Image 1 (Cache Bust)</h3>
+                    <img src="/storage/posts/1752548577_WhatsApp Image 2025-07-14 at 13.18.11_a6ecc6b1.jpg?v=123" 
+                         alt="Test Image 1" class="w-full h-32 object-cover rounded">
+                    <p class="text-sm text-gray-600 mt-2">WhatsApp Image with cache busting</p>
+                </div>
+                <div class="border rounded p-4">
+                    <h3 class="font-semibold mb-2">Image 2 (Cache Bust)</h3>
+                    <img src="/storage/posts/1754130087_go-green-eco-friendly-tips-template-design-b370d5e4c4451b72ef8f38efe1714114_screen.jpg?v=123" 
+                         alt="Test Image 2" class="w-full h-32 object-cover rounded">
+                    <p class="text-sm text-gray-600 mt-2">Green Tips Template with cache busting</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Check Console</h2>
+            <p class="text-sm text-gray-600">Open browser console (F12) to see if images load successfully or fail.</p>
+            <button onclick="checkImages()" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+                Check Image Status
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function checkImages() {
+            const images = document.querySelectorAll('img');
+            images.forEach((img, index) => {
+                console.log(`Image ${index + 1}:`, {
+                    src: img.src,
+                    complete: img.complete,
+                    naturalWidth: img.naturalWidth,
+                    naturalHeight: img.naturalHeight
+                });
+            });
+        }
+        
+        // Check images on page load
+        window.addEventListener('load', function() {
+            setTimeout(checkImages, 1000);
+        });
+    </script>
+</body>
+</html> 

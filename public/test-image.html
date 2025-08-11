@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Access</title>
+</head>
+<body>
+    <h1>Test Image Access</h1>
+    
+    <h2>Test 1: Laravel Media Route</h2>
+    <img src="/media/posts/1754130087_go-green-eco-friendly-tips-template-design-b370d5e4c4451b72ef8f38efe1714114_screen.jpg" 
+         alt="Test Image" style="max-width: 300px;">
+    
+    <h2>Test 2: Simple filename via Laravel route</h2>
+    <img src="/media/posts/1754130599_check.png" 
+         alt="Test Image" style="max-width: 300px;">
+    
+    <h2>Test 3: Direct storage path (should fail)</h2>
+    <img src="/storage/posts/1754130087_go-green-eco-friendly-tips-template-design-b370d5e4c4451b72ef8f38efe1714114_screen.jpg" 
+         alt="Test Image" style="max-width: 300px;">
+    
+    <h2>Test 4: Check media route</h2>
+    <p>Media route should be accessible at: <a href="/media/posts/" target="_blank">/media/posts/</a></p>
+    
+    <script>
+        // Test image loading
+        const images = document.querySelectorAll('img');
+        images.forEach((img, index) => {
+            img.onload = function() {
+                console.log(`Image ${index + 1} loaded successfully`);
+            };
+            img.onerror = function() {
+                console.log(`Image ${index + 1} failed to load`);
+                console.log('Failed URL:', img.src);
+            };
+        });
+    </script>
+</body>
+</html> 

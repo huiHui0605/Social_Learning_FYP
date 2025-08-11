@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messaging Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold mb-6">Messaging System Test</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">API Test</h2>
+            <button id="testApiBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Test /users/available API
+            </button>
+            <div id="apiResult" class="mt-4 p-4 bg-gray-50 rounded hidden">
+                <h3 class="font-semibold mb-2">API Result:</h3>
+                <pre id="apiData" class="text-sm"></pre>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Modal Test</h2>
+            <button id="openModalBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Open New Chat Modal
+            </button>
+        </div>
+
+        <!-- Test Modal -->
+        <div id="testModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold">Test Modal</h3>
+                            <button id="closeTestModal" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-2">Available Users</h4>
+                                <div id="testUsers" class="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-2">
+                                    <p class="text-gray-500 text-center py-4">Loading users...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Console Log</h2>
+            <div id="consoleLog" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-y-auto">
+                <div>Console output will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Console logging
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleLogDiv = document.getElementById('consoleLog');
+
+        function addToConsole(message, type = 'log') {
+            const div = document.createElement('div');
+            div.className = type === 'error' ? 'text-red-400' : 'text-green-400';
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleLogDiv.appendChild(div);
+            consoleLogDiv.scrollTop = consoleLogDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '));
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+
+        // API Test
+        document.getElementById('testApiBtn').addEventListener('click', async function() {
+            console.log('Testing API endpoint...');
+            try {
+                const response = await fetch('/users/available', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                document.getElementById('apiResult').classList.remove('hidden');
+                document.getElementById('apiData').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('API Error:', error);
+                document.getElementById('apiResult').classList.remove('hidden');
+                document.getElementById('apiData').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        // Modal Test
+        document.getElementById('openModalBtn').addEventListener('click', function() {
+            console.log('Opening test modal...');
+            document.getElementById('testModal').classList.remove('hidden');
+            loadTestUsers();
+        });
+
+        document.getElementById('closeTestModal').addEventListener('click', function() {
+            document.getElementById('testModal').classList.add('hidden');
+        });
+
+        async function loadTestUsers() {
+            console.log('Loading test users...');
+            try {
+                const response = await fetch('/users/available', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Test users loaded:', data);
+                    renderTestUsers(data.users);
+                } else {
+                    console.error('Failed to load test users');
+                    document.getElementById('testUsers').innerHTML = '<p class="text-red-500 text-center py-4">Failed to load users</p>';
+                }
+            } catch (error) {
+                console.error('Error loading test users:', error);
+                document.getElementById('testUsers').innerHTML = '<p class="text-red-500 text-center py-4">Error: ' + error.message + '</p>';
+            }
+        }
+
+        function renderTestUsers(users) {
+            const container = document.getElementById('testUsers');
+            container.innerHTML = '';
+
+            if (!users || users.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No users available</p>';
+                return;
+            }
+
+            users.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer';
+                userElement.innerHTML = `
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                        ${user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                        <div class="text-xs text-gray-500">${user.role}</div>
+                    </div>
+                    <button type="button" class="select-test-user text-blue-600 hover:text-blue-800" data-user-id="${user.id}" data-user-name="${user.name}">
+                        Select
+                    </button>
+                `;
+
+                const selectBtn = userElement.querySelector('.select-test-user');
+                selectBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    console.log('Test user selected:', user);
+                    alert(`Selected user: ${user.name} (${user.role})`);
+                });
+
+                container.appendChild(userElement);
+            });
+        }
+
+        console.log('Test page loaded successfully');
+    </script>
+</body>
+</html> 

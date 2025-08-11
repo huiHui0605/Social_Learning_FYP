@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Share Functionality</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold mb-6">Test Share Functionality</h1>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Test API Endpoints</h2>
+            <button onclick="testUsersAPI()" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">
+                Test Users API
+            </button>
+            <button onclick="testShareAPI()" class="bg-green-500 text-white px-4 py-2 rounded">
+                Test Share API
+            </button>
+        </div>
+        
+        <div id="results" class="bg-gray-50 p-4 rounded">
+            <p class="text-gray-600">Results will appear here...</p>
+        </div>
+        
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold mb-2">Manual Test</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Post ID:</label>
+                    <input type="number" id="postId" value="1" class="border rounded px-3 py-2 w-full">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">User IDs (comma separated):</label>
+                    <input type="text" id="userIds" value="2,3" class="border rounded px-3 py-2 w-full">
+                </div>
+                <button onclick="manualShare()" class="bg-purple-500 text-white px-4 py-2 rounded">
+                    Manual Share
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testUsersAPI() {
+            fetch('/api/users-for-sharing')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Users API response:', data);
+                    document.getElementById('results').innerHTML = `
+                        <h3 class="font-semibold mb-2">Users API Response:</h3>
+                        <pre class="text-sm">${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('results').innerHTML = `
+                        <h3 class="font-semibold mb-2 text-red-600">Error:</h3>
+                        <pre class="text-sm text-red-600">${error.message}</pre>
+                    `;
+                });
+        }
+
+        function testShareAPI() {
+            const postId = document.getElementById('postId').value;
+            const userIds = document.getElementById('userIds').value.split(',').map(id => parseInt(id.trim()));
+            
+            fetch(`/posts/${postId}/share-to-users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({ user_ids: userIds })
+            })
+            .then(response => {
+                console.log('Share API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Share API response:', data);
+                document.getElementById('results').innerHTML = `
+                    <h3 class="font-semibold mb-2">Share API Response:</h3>
+                    <pre class="text-sm">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `
+                    <h3 class="font-semibold mb-2 text-red-600">Error:</h3>
+                    <pre class="text-sm text-red-600">${error.message}</pre>
+                `;
+            });
+        }
+
+        function manualShare() {
+            testShareAPI();
+        }
+    </script>
+</body>
+</html> 

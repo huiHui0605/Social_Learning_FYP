@@ -278,7 +278,7 @@ class CourseController extends Controller
             'uploaded_by' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Material uploaded successfully!');
+        return redirect()->route('lecturer.courses.show', $course)->with('success', 'Material uploaded successfully!');
     }
 
     /**

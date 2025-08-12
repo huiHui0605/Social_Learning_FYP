@@ -226,23 +226,7 @@
                         <!-- File Upload Input (Hidden) -->
                         <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar">
                         
-                        <!-- Test connection -->
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const fileUploadBtn = document.getElementById('fileUploadBtn');
-                                const fileInput = document.getElementById('fileInput');
-                                
-                                if (fileUploadBtn && fileInput) {
-                                    fileUploadBtn.addEventListener('click', function() {
-                                        fileInput.click();
-                                    });
-                                    
-                                    fileInput.addEventListener('change', function() {
-                                        console.log('File selected:', this.files[0]?.name);
-                                    });
-                                }
-                            });
-                        </script>
+
                     </div>
                 </div>
             </div>

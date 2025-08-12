@@ -51,12 +51,7 @@ class TeamsChat {
             this.sendMessage();
         });
 
-        // File upload
-        this.fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                this.uploadFile(e.target.files[0]);
-            }
-        });
+
 
         // Search functionality for existing conversations
         if (this.searchInput) {
@@ -401,7 +396,7 @@ class TeamsChat {
                     <div class="text-sm font-medium truncate">${this.escapeHtml(fileName)}</div>
                     <div class="text-xs opacity-75">${fileSize}</div>
                 </div>
-                <a href="/messages/download/${message.id}" class="text-blue-200 hover:text-white">
+                <a href="/messages/${message.id}/download" class="text-blue-200 hover:text-white">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -582,7 +577,7 @@ class TeamsChat {
 
     // Upload file
     async uploadFile(file) {
-        if (!this.currentChat) {
+        if (!this.currentChatType || !this.currentChatId) {
             alert('Please select a chat first');
             return;
         }
@@ -592,31 +587,56 @@ class TeamsChat {
 
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
         try {
-            const url = this.currentChatType === 'individual' 
-                ? `/messages/${this.currentChat}` 
-                : `/group-messages/${this.currentChat}`;
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                },
-                body: formData
-            });
+            let response;
+            if (this.currentChatType === 'individual') {
+                formData.append('receiver_id', this.currentChatId);
+                response = await fetch('/messages/individual/send', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: formData
+                });
+            } else {
+                formData.append('group_id', this.currentChatId);
+                response = await fetch(`/messages/group/${this.currentChatId}/send`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: formData
+                });
+            }
 
             if (response.ok) {
                 const data = await response.json();
-                this.addMessage(data.message, this.currentChatType);
-                this.scrollToBottom();
+                console.log('File uploaded successfully, response:', data);
+                
+                // Check if the response contains the expected data
+                if (data.success && data.message) {
+                    console.log('Adding message to chat:', data.message);
+                    // Add message to chat
+                    this.addMessageToChat(data.message);
+                    
+                    // Scroll to bottom
+                    this.scrollToBottom();
+                } else {
+                    console.error('Invalid response format:', data);
+                    alert('File uploaded but there was an issue displaying it. Please refresh the page.');
+                }
+                
                 this.hideUploadProgress();
             } else {
-                console.error('Failed to upload file');
+                const errorData = await response.json().catch(() => ({}));
+                console.error('Failed to upload file:', errorData);
                 this.hideUploadProgress();
-                alert('Failed to upload file. Please try again.');
+                alert(errorData.error || 'Failed to upload file. Please try again.');
             }
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -626,6 +646,7 @@ class TeamsChat {
 
         // Clear file input
         this.fileInput.value = '';
+        this.updateFileInputLabel();
     }
 
     // Show upload progress
@@ -656,23 +677,17 @@ class TeamsChat {
     // Enhanced file input for mobile devices
     initializeFileInput() {
         const fileUploadBtn = document.getElementById('fileUploadBtn');
+        const fileInput = document.getElementById('fileInput');
         
-        if (fileUploadBtn) {
+        if (fileUploadBtn && fileInput) {
             fileUploadBtn.addEventListener('click', () => {
-                // Create a more comprehensive file input for mobile
-                const mobileFileInput = document.createElement('input');
-                mobileFileInput.type = 'file';
-                mobileFileInput.accept = 'image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,audio/*';
-                mobileFileInput.multiple = false;
-                mobileFileInput.capture = 'environment'; // For mobile camera access
-                
-                mobileFileInput.addEventListener('change', (e) => {
-                    if (e.target.files.length > 0) {
-                        this.uploadFile(e.target.files[0]);
-                    }
-                });
-                
-                mobileFileInput.click();
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    this.uploadFile(e.target.files[0]);
+                }
             });
         }
     }
@@ -2006,7 +2021,7 @@ class TeamsChat {
         
         let messageContent = '';
         
-        if (message.message_type === 'file') {
+        if (message.message_type === 'file' || message.message_type === 'photo' || message.message_type === 'video') {
             messageContent = `
                 <div class="flex items-center space-x-2 p-2 bg-gray-100 rounded">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

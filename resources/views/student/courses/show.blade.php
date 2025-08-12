@@ -207,7 +207,7 @@
                                     <input type="file" name="attachment" id="attachment" 
                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png">
-                                    <p class="text-xs text-gray-500 mt-1">Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG (Max 10MB)</p>
+                                    <p class="text-xs text-gray-500 mt-1">Supported formats: PDF(Max 10MB)</p>
                                 </div>
                                 <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Submit Assignment</button>
                             </form>

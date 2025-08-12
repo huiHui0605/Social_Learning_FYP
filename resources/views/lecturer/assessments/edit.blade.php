@@ -91,7 +91,7 @@
                                 @if($assessment->hasFile())
                                     Upload a new file to replace the current one (PDF, DOC, DOCX, TXT, PPT, PPTX, max 10MB)
                                 @else
-                                    Upload assignment file (PDF, DOC, DOCX, TXT, PPT, PPTX, max 10MB)
+                                    Upload assignment file (PDF max 10MB)
                                 @endif
                             </p>
                             <x-input-error :messages="$errors->get('assignment_file')" class="mt-2" />

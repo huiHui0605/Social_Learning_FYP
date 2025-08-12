@@ -68,7 +68,7 @@
                         <div class="mb-4">
                             <x-input-label for="assignment_file" value="Assignment File (Optional)" />
                             <input type="file" name="assignment_file" id="assignment_file" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx" />
-                            <p class="text-sm text-gray-500 mt-1">Upload assignment file (PDF, DOC, DOCX, TXT, PPT, PPTX, max 10MB)</p>
+                            <p class="text-sm text-gray-500 mt-1">Upload assignment file (PDF max 10MB)</p>
                             <x-input-error :messages="$errors->get('assignment_file')" class="mt-2" />
                         </div>
 
